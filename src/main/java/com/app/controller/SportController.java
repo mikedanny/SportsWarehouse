@@ -9,6 +9,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 import org.hibernate.service.ServiceRegistry;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,17 +62,20 @@ public class SportController {
     //2. sa pot naviga prin toate paginile. Exemplu: /Products?size=2&page=2
     //TODO read REST and pagination. Pagination of DB too.
 
+
     @RequestMapping("/Products")
-    public String getPage(@RequestParam int size, @RequestParam int page){
+    public String getPage(@RequestParam(required = false, defaultValue = "2") int size, @RequestParam(required = false, defaultValue = "1") int page){
         String itemAsString = "";
-        int offset = 1;
+        int offset = 0;
         try {
             sessionObj = buildSessionFactory().openSession();
             sessionObj.beginTransaction();
-            if (page > 1) {
-                offset = offset + size;
-            }
-            List<Item> items = sessionObj.createQuery(" from Item ORDER BY ItemID LIMIT 1 OFFSET 100").list();
+
+            Query query = sessionObj.createQuery(" from Item");
+            query.setFirstResult(offset + (page - 1) * size);
+            query.setMaxResults(size);
+
+            List<Item> items = query.list();
             ObjectMapper objectMapper = new ObjectMapper();
             itemAsString = objectMapper.writeValueAsString(items);
             sessionObj.getTransaction().commit();
@@ -90,16 +94,20 @@ public class SportController {
     }
 
 //    @RequestMapping("/Products")
-//    public String getProducts(){
-//        String itemsAsString = "";
+//    public String getPage(@RequestParam(required = false, defaultValue = "2") int size, @RequestParam(required = false, defaultValue = "1") int page){
+//        String itemAsString = "";
+//        System.out.println(size);
+//        int offset = 1;
 //        try {
 //            sessionObj = buildSessionFactory().openSession();
 //            sessionObj.beginTransaction();
-//            List<Item> items = sessionObj.createQuery(" from Item").list();
-//            ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-//            itemsAsString = objectMapper.writeValueAsString(items);
-////            itemsAsString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(items);
 //
+//            Query query = sessionObj.createQuery(" from Item");
+//            query.setFirstResult(0);
+//            query.setMaxResults(size);
+//            List<Item> items = query.list();
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            itemAsString = objectMapper.writeValueAsString(items);
 //            sessionObj.getTransaction().commit();
 //        } catch (Exception sqlException) {
 //            if(null != sessionObj.getTransaction()) {
@@ -112,7 +120,6 @@ public class SportController {
 //                sessionObj.close();
 //            }
 //        }
-//        return itemsAsString;
+//        return itemAsString;
 //    }
-
 }

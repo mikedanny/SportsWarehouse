@@ -1,12 +1,10 @@
 package com.app.controller;
 
-import com.app.model.Item;
+import com.app.model.Product;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.annotations.Parameter;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
@@ -26,7 +24,7 @@ public class SportController {
 
     private static SessionFactory buildSessionFactory(){
         Configuration configObj = new Configuration();
-        configObj.configure("hibernate.cfg.xml").addAnnotatedClass(Item.class);
+        configObj.configure("hibernate.cfg.xml").addAnnotatedClass(Product.class);
         ServiceRegistry serviceRegistryObj = new StandardServiceRegistryBuilder().applySettings(configObj.getProperties()).build();
         sessionFactoryObj = configObj.buildSessionFactory(serviceRegistryObj);
         return sessionFactoryObj;
@@ -39,7 +37,7 @@ public class SportController {
         try {
             sessionObj = buildSessionFactory().openSession();
             sessionObj.beginTransaction();
-            Item item = (Item) sessionObj.createQuery(" from Item where id=" + id).list().get(0);
+            Product item = (Product) sessionObj.createQuery(" from Product where id=" + id).list().get(0);
             ObjectMapper objectMapper = new ObjectMapper();
             itemAsString = objectMapper.writeValueAsString(item);
             sessionObj.getTransaction().commit();
@@ -71,11 +69,11 @@ public class SportController {
             sessionObj = buildSessionFactory().openSession();
             sessionObj.beginTransaction();
 
-            Query query = sessionObj.createQuery(" from Item");
+            Query query = sessionObj.createQuery(" from Product");
             query.setFirstResult(offset + (page - 1) * size);
             query.setMaxResults(size);
 
-            List<Item> items = query.list();
+            List<Product> items = query.list();
             ObjectMapper objectMapper = new ObjectMapper();
             itemAsString = objectMapper.writeValueAsString(items);
             sessionObj.getTransaction().commit();
@@ -102,10 +100,10 @@ public class SportController {
 //            sessionObj = buildSessionFactory().openSession();
 //            sessionObj.beginTransaction();
 //
-//            Query query = sessionObj.createQuery(" from Item");
+//            Query query = sessionObj.createQuery(" from Product");
 //            query.setFirstResult(0);
 //            query.setMaxResults(size);
-//            List<Item> items = query.list();
+//            List<Product> items = query.list();
 //            ObjectMapper objectMapper = new ObjectMapper();
 //            itemAsString = objectMapper.writeValueAsString(items);
 //            sessionObj.getTransaction().commit();
